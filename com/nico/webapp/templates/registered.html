@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <h1 class="text-align center" style="font-style italic">This is a list of all the people currently registered:</h1>
+    <br>
+    <p>To see more info about the people registered, click on their name!</p>
+    {% for registered in nameee %}
+        <li class="list-group-item">{{registered.name}} {{registered.familly}} Age: {{registered.age}}, Born on the: {{registered.birthday}} Email: {{registered.email}}</li>
+        {% for hobby in registered.hobby %}
+            <a class="list-group-item" href="https://www.google.com/search?q={{hobby}}">{{hobby}}</a>
+        {% endfor %}
+    {% endfor %}
+{% endblock %}
