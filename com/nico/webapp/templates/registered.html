@@ -3,11 +3,21 @@
 {% block body %}
     <h1 class="text-align center" style="font-style italic">This is a list of all the people currently registered:</h1>
     <br>
-    <p>To see more info about the people registered, click on their name!</p>
-    {% for registered in nameee %}
-        <li class="list-group-item">{{registered.name}} {{registered.familly}} Age: {{registered.age}}, Born on the: {{registered.birthday}} Email: {{registered.email}}</li>
-        {% for hobby in registered.hobby %}
-            <a class="list-group-item" href="https://www.google.com/search?q={{hobby}}">{{hobby}}</a>
+    {% for name in name_data %}
+        {% for family in name_family %}
+            {% for age in name_age %}
+                {% for birthday in name_birthday %}
+                    {% for email in name_email %}
+        <li class="list-group-item">
+            {{registered}}
+            {{family}}
+            Age: {{age}},
+            Born on the: {{birthday}}
+            Email: {{email}}
+        </li>
+                    {% endfor %}
+                {% endfor %}
+            {% endfor %}
         {% endfor %}
     {% endfor %}
 {% endblock %}

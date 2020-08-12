@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <form class="jumbotron text-center">
+        <div>We have send you a confirmation code to your email address:{{ emailAddressUser }}</div>
+        <div>Confirmation code:</div>
+        <input method="POST" type="number" value="{{request.form.password}}">
+    </form>
+{% endblock %}

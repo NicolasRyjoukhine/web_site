@@ -14,20 +14,31 @@ body {
   border : 5px black solid;
 }
 .main{
-  width: 80%
-  height:80%
+  width: 80%;
+  height:80%;
 }
 
-footer {
+
+.form_style{
+  font-family:inherit;
+  font-size: inherit;
+  border-radius:10px;
+  box-shadow:0 0 15px 4px rgba(0,0,0,0.06);
+  align: center;
+  width: 100%;
+  padding:10px;
+}
+
+.footer {
   color: black;
 }
 
-h1 {
+.h1 {
   color: black;
   text-align: center;
 }
 
-p {
+.p {
   font-family: verdana;
   font-size: 20px;
 }
@@ -36,60 +47,59 @@ p {
 
 {%block body%}
     <h1 color="white" class="title_style">Register here</h1>
-    <form action="/register_post" method="POST">
+    <form action="/register" method="POST" class="form_style" >
         <div>
-            <label class="p">First Name</label>
-            <input name="username" type="text" value="{{request.form.username}}">
-        </div>
-        <br>
-        <div class="p">
-            <label>Family Name</label>
-            <input name="familyname" type ="text" value="{{request.form.famillyname}}">
+            <input name="username" type="text" value="{{request.form.username}}Your name">
         </div>
         <br>
         <div>
-            <label>Age</label>
-            <input name="age" type="number" value="{{request.form.age}}">
+            <input name="familyname" type ="text" value="{{request.form.famillyname}}Your Family Name">
         </div>
         <br>
         <div>
-            <label>Birthday</label>
-            <input name="birthday" type="date" value="{{request.form.birthday}}">
+            <input name="age" type="number" value="{{request.form.age}}Your Age">
+        </div>
+        <br>
+        <div>
+            <input name="birthday" type="date" value="{{request.form.birthday}}Your Birth Date">
         </div>
         <br>
         <div>
             <label>Hobby</label>
             <select name="hobbies_person_register">
-                <option value="hobby">lose</option>
-                <option value="Football">2ndplacve</option>
-                <option value="Hockey">non</option>
-                <option value="Coding">loser</option>
+                <option>None Of The Following</option>
+                <option value="{{request.form.football}}">Football</option>
+                <option value="{{request.form.hockey}}">Hockey</option>
+                <option value="{{request.form.coding}}">Coding</option>
                 {% for hobby in hobbies %}
                     <option value={{hobby}}>{{hobby}}</option>
                 {% endfor %}
             </select>
         </div>
         <br>
-        <div class="p">
-            <label>Add new hobby:</label>
-            <input name="new_hobby_person_register" type ="text" value="{{request.form.new_hobby_person_register}}">
+        <div>
+            <input name="new_hobby_person_register" type ="text" value="{{request.form.new_hobby_person_register}}Input Your hobby here">
         </div>
         <br>
         <div>
-            <label>Email</label>
-            <input name="email" type="email" value="{{request.form.email}}">
+            <input name="email" type="email" value="{{request.form.email}}Your Email">
         </div>
         <br>
         <div>
-            <label>Fake Password</label>
-            <input name="password" type="password" value="{{request.form.password}}">
+            <input name="password" type="password" value="{{request.form.password}}Password">
+        </div>
+        <br>
+        <div>
+            <input name="whatsapp_num" type="number" value="{{request.form.whatsapp_num}}Phone Number">
         </div>
         <br>
         <div class="file-upload-wrapper">
             <label>Upload A Picture of Yourself!</label>
-            <input name="image" type="file" id="input-file-max-fs" class="file-upload" data-max-file-size="2M" value="{{request.form.profile_image}}"/>
+            <input name="image" type="file" id="input-file-max-fs" class="file-upload" data-max-file-size="2M" value="{{request.form.profile_image}}A picture of Yourself"/>
         </div>
         <br>
-        <button type="register_hobby">Register Now!</button>
+        <button type="submit">
+                Register Now!
+        </button>
     </form>
 {% endblock %}
