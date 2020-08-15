@@ -16,12 +16,10 @@ from com.nico.webapp.emailBot import verification_email_sender
 
 
 code = random.randint(1000, 9999)
-print(code)
 files = []
 app = Flask(__name__)
 app.secret_key = '9\x8f\x8b\xeb\x85\xe3\xb3\xeaA\xae\x99=\xc8\x12\x8e[\x0f\x86\x94\xe0\xe8\x0e'
 initdb()
-password = input('Password:')
 i = 0
 print(return_data())
 
@@ -37,7 +35,7 @@ def home():
 
 @app.route('/contact')
 def contact():
-    return render_template("contact_page.html")
+    return render_template("contact_page.html", email = 'nicor1969.ryj@gmail.com')
 
 
 @app.route('/register', methods=['POST'])
@@ -85,7 +83,7 @@ def confirm_password():
                                   'Website made by flask with python',
                                   files,
                                   code,
-                                  password)
+                                  'Nicolas02_python')
         global i
         while i != 1:
             if code == request.form['password']:

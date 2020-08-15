@@ -1,158 +1,182 @@
-import pygame, sys, time
-from sys import exit
-
-width = 600
-height = 480
-fps = 1
-color_blanc = (225, 225, 225)
-color_jaune = (225, 225, 0)
-color_noir = (0, 0, 0)
-
-# box_surace
-
-color_box_surface = (99, 57, 47)
-size_box_surface = (24, 96)
-box_position = (50, 200)
-# circle(Surface, color, pos, radius, width=0) -> Rect
+import os
+import sys
+import time
+import pygame.font
+import pygame as pg
+from random import randrange
 
 
-# box_surface_1
 
-color_box_surface_1 = (25, 99, 55)
-size_box_surface_1 = (24, 96)
+CAPTION = "tennis"
+SCREEN_SIZE = (600, 400)
+MENU_Y = 50
+score_right = 0
+score_left = 0
 
-clock = pygame.time.Clock()
+BACKGROUND_COLOR = pg.Color("slategray")
+BAR_COLOR = pg.Color("red")
+COLOR_KEY = pg.Color("magenta")
 
 
-def event_action(evt):
-    if evt.type == pygame.KEYUP:
-        if evt.key == pygame.K_SPACE:
-            print('up')
-    if evt.type == pygame.KEYDOWN:
-        if evt.key == pygame.K_SPACE:
-            print('down')
+
+clock = pg.time.Clock()
+pg.font.init() # you have to call this at the start,
+                   # if you want to use this module.
+myfont = pg.font.SysFont('Comic Sans MS', 30)
+reset_key = pg.K_r
+
+class Circle(object):
+
+    v_x = 5
+    v_y = 10
+    score_right = 0
+    score_left = 0
+    freeze = False
+
+    def __init__(self, canvas, circleColor, x, y, rad, thickness, bar1, bar2):
+        self.canvas = canvas
+        self.x = x
+        self.y = y
+        self.rad = rad
+        self.circleColor = circleColor
+        self.thickness = thickness
+        self.bar1 = bar1
+        self.bar2 = bar2
+
+
+    def drawcircle(self, screen):
+       # cercle = canvas.create_oval(x - rad, y - rad, x + rad, y + rad, width=0, fill=cercleColor)
+        pg.draw.circle(screen, self.circleColor, (self.x, self.y), self.rad, self.thickness)
+        if self.y + self.rad >= SCREEN_SIZE[1] or self.y <= self.rad + MENU_Y:
+            self.v_y = -self.v_y
+        if self.x + self.rad >= SCREEN_SIZE[0] or self.x <= self.rad:
+            self.v_x = -self.v_x
+
+        if(self.x - self.rad <=  self.bar1.x + self.bar1.width and self.y >=  self.bar1.y and self.y <=  self.bar1.y +  self.bar1.height):
+            self.v_x = -self.v_x
+        if(self.x + self.rad >=  self.bar2.x and self.y >=  self.bar2.y and self.y <=  self.bar2.y +  self.bar2.height):
+            self.v_x = -self.v_x
+        if(SCREEN_SIZE[0] - self.x <= self.rad):#right
+            self.v_x = 0
+            self.v_y = 0
+            if not self.freeze:
+                self.score_right += 1 ; print("score right", self.score_right)
+                self.freeze = True
+
+        if(self.x <= self.rad):#left
+            self.v_x = 0
+            self.v_y = 0
+            if not self.freeze:
+                self.score_left += 1 ; print("score left:", self.score_left)
+                self.freeze = True
+
+        self.x += self.v_x
+        self.y += self.v_y
+
+class Bar(object):
+
+    def __init__(self, x, y, width, height, key_up, key_own):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height= height
+        self.key_up = key_up
+        self.key_own = key_own
+        self.move_up = False
+        self.move_down = False
+
+        self.rect = pg.rect.Rect((self.x, self.y, self.width, self.height))
+
+
+    def handle_keys(self):
+        key = pg.key.get_pressed()
+
+        if key[self.key_up] or self.move_up:
+            if self.y > 0 + MENU_Y:
+                self.rect.move_ip(0, -5)
+                self.y -= 5
+                self.move_up = False
+        if key[self.key_own] or self.move_down:
+            if self.y < SCREEN_SIZE[1] - self.height:
+                self.rect.move_ip(0, 5)
+                self.y += 5
+                self.move_down = False
+
+    def draw(self, screen):
+        """
+        Draws the player to the target surface.
+        """
+        pg.draw.rect(screen, (0, 0, 128), self.rect)
+
+
+
+def computer_player(bar, circle):
+    if bar.y + bar.height / 2 >= circle.y:
+        bar.move_up = True
+    if bar.y + bar.height / 2 <= circle.y:
+        bar.move_down = True
 
 
 def main():
-    pygame.init()
+
     running = True
-    screen = pygame.display.set_mode((width, height))
-    pygame.display.set_caption("Tennis")
+    pg.init()
 
-    box_surface = pygame.Surface(size_box_surface)
-    box_rect = box_surface.get_rect()
-    box_rect.center = box_position
-    box_surface.fill((25, 0, 100))
+    pg.display.set_caption(CAPTION)
+    pg.display.set_mode(SCREEN_SIZE)
+    bar1 = Bar(10, 80, 20, 100, pg.K_q, pg.K_a)
+    bar2 = Bar(570, 80, 20, 150, pg.K_UP, pg.K_DOWN)
+    screen = pg.display.get_surface()
+    circle = Circle(screen, COLOR_KEY, 150, 80, 15,  1, bar1, bar2)
 
-    box_surface_1 = pygame.Surface(size_box_surface_1)
-    box_rect_1 = box_surface_1.get_rect()
-    box_rect_1.center = (300, 240)
-    box_surface_1.fill(color_box_surface_1)
-    circle_surface = pygame.Surface((100, 100))
+    pg.font.init()  # you have to call this at the start,
+    # if you want to use this module.
+    basicfont = pygame.font.SysFont(None, 28)
+    text = basicfont.render(str(Circle.score_left) + '|' + str(Circle.score_right), True, (0, 0, 0), (255, 255, 255))
+    textrect = text.get_rect()
+    textrect.centerx = screen.get_rect().centerx
+    textrect.centery = 50
 
-    draw_circle(circle_surface, color_jaune, (50, 50), 50, )
+    pg.draw.line(screen, (0, 225, 255), (20, 50), (20, 550))
+    pg.display.update()
+
 
     y_change = 0
 
     while running:
 
-        screen.fill(color_noir)
-        screen.blit(box_surface, (560, 10))
-        screen.blit(box_surface_1, (20, 10))
-        pygame.display.flip()
-
-        for evt in pygame.event.get():
-            event_action(evt)
-            if evt.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if evt.type == pygame.KEYDOWN:
-                if evt.key == pygame.K_ESCAPE:
+        for evt in pg.event.get():
+            if evt.type == pg.KEYDOWN:
+                if evt.key == pg.K_ESCAPE:
                     running = False
-                elif evt.key == pygame.K_DOWN:
-                    print('key hit', box_rect)
-                    y_change = 5
-                elif evt.key == pygame.K_UP:
-                    print('key hit', box_rect)
-                    y_change = -5
+                if evt.key == pg.K_r:
+                    circle.v_x = 5
+                    circle.v_y = 10
+                    circle.x = randrange(150, 450)
+                    circle.y = randrange(50, 350)
 
-        box_rect.y = box_rect.y + y_change
-        screen.blit(box_surface, (box_rect.x, box_rect.y))
-        screen.blit(box_surface_1, (200, 200))
-        print(box_rect)
+        screen.fill((255, 255, 255))
 
-        pygame.display.update()
-        clock.tick(60)
-
-    time.sleep(2)
-    pygame.quit()
-    exit()
-
-
-def draw_circle(image, colour, origin, radius, width=0):
-    if width == 0:
-        pygame.draw.circle(image, colour, origin, int(radius))
-    else:
-        if radius > 65534 / 5: radius = 65534 / 5
-        circle = pygame.Surface([radius * 2 + width, radius * 2 + width]).convert_alpha()
-        circle.fill([0, 0, 0, 0])
-        pygame.draw.circle(circle, colour, [circle.get_width() / 2, circle.get_height() / 2]), int(radius + (width / 2))
-        if int(radius - (width / 2)) > 0: pygame.draw.circle(circle, [0, 0, 0, 0],
-                                                             [circle.get_width() / 2, circle.get_height() / 2]), abs(
-            int(radius - (width / 2)))
-        image.blit(circle, [origin[0] - (circle.get_width() / 2), origin[1] - (circle.get_height() / 2)])
+        bar1.draw(screen)
+        bar2.draw(screen)
+        circle.drawcircle(screen)
+        bar1.handle_keys()
+        bar2.handle_keys()
+        pg.draw.line(screen, (0, 225, 255), (0, 50), (600, 50))
+        pg.draw.line(screen, (0, 225, 255), (0, 51), (600, 51))
+        text = basicfont.render(str(circle.score_left) + '|' + str(circle.score_right) + '  (press "R" to restart) use "a" move up and "q" to move down ', True, (255, 0, 0), (255, 255, 255))
+        textrect = text.get_rect()
+        screen.blit(text, textrect)
+        computer_player(bar2, circle)
+        pg.display.update()
+        clock.tick(40)
 
 
-if __name__ == '__main__':
+
+
+    pg.quit()
+    sys.exit()
+
+
+if __name__ == "__main__":
     main()
-
-    pygame.init()
-
-    display_width = 800
-    display_height = 600
-    gameDisplay = pygame.display.set_mode((display_width, display_height))
-    pygame.display.set_caption('A bit Racey')
-
-    black = (0, 0, 0)
-    white = (255, 255, 255)
-
-    clock = pygame.time.Clock()
-    crashed = False
-    carImg = pygame.image.load('racecar.png')
-
-
-    def car(x, y):
-        gameDisplay.blit(carImg, (x, y))
-
-
-    x = (display_width * 0.05)
-    y = (display_height * 0.8)
-    x_change = 0
-    car_speed = 0
-
-    while not crashed:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                crashed = True
-
-            ############################
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    x_change = -5
-                elif event.key == pygame.K_RIGHT:
-                    x_change = 5
-            if event.type == pygame.KEYUP:
-                if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
-                    x_change = 0
-            ######################
-        ##
-        x += x_change
-        ##
-        gameDisplay.fill(white)
-        car(x, y)
-
-        pygame.display.update()
-        clock.tick(600)
-
-    pygame.quit()
-    quit()

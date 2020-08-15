@@ -1,8 +1,65 @@
 {% extends 'base.html' %}
 
 {% block body %}
-    Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-    Cum cumque elkgkugigendi illum minima necessitatibus nulla officiis
-    perspiciatis placeat porro quibusdam similique, soluta,
-    voluptatem? Autem cumque expedita laboriosam nostrum quisquam, vero.
+<style type="text/css">
+.head{
+  text-align: center;
+  text-color: dark;
+  text-decoration:underline;
+  text-decoration:italic;
+}
+.center {
+  text-align: center;
+  margin: auto;
+  width: 50%;
+  border: 3px;
+  padding: 10px;
+  text-color: grey;
+}
+body{
+  background-repeat: no-repeat;
+  background-size: 100%;
+}
+
+<style>
+a:link {
+  color: grey;
+  background-color: transparent;
+  text-decoration: none;
+}
+
+a:visited {
+  color: pink;
+  background-color: transparent;
+  text-decoration: none;
+}
+
+a:hover {
+  color: red;
+  background-color: transparent;
+  text-decoration: underline;
+}
+
+a:active {
+  color: yellow;
+  background-color: transparent;
+  text-decoration: underline;
+}
+.bgimg {
+    background-image: url('../images/contact_us_page.png');
+}
+
+</style>
+<body class="body">
+    <div class="bgimg">
+        <h1 class="head"><i>Get in touch</i></h1>
+        <h4 class="center">If you have any question: Ask them here</h4>
+        <br>
+        <p class="center">Contact me with <a href="www.gmail.com">Gmail</a> with my Email Address: {{email}}</p>
+        <br>
+        <p class="center">You can also call me at this number (Singapore): +6583216932</p>
+    </div>
+</body>
+
+
 {% endblock %}
