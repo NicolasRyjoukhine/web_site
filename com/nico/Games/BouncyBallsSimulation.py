@@ -1,20 +1,34 @@
 import pygame as pg
+import pygame.font
 from pygame.locals import *
 import random
 import math
-from pathlib import Path
+import time
+import sys
 import tkinter
 
-
 clock = pg.time.Clock()
+pg.font.init() # you have to call this at the start,
 
-screenHeight = 800
+
 screenWidth = 800
-screen = pg.display.set_mode((screenHeight, screenWidth))
-bgImg = pg.image.load("boncingBallsSimulationBG.png")
-picture = pg.transform.scale(bgImg, (screenWidth, screenHeight))
-img = pg.image.load('arrow_ball_sim.png')
-img.set_colorkey((0, 0, 0))
+screenHeight = 800
+screen = pg.display.set_mode((screenWidth, screenHeight))
+bgImg = pg.image.load("D:\\nicoPrj\web_site\com\\nico\Games\Images\\boncingBallsSimulationBG.png")
+picture = pg.transform.scale(bgImg, (screenHeight + 400, screenWidth))
+arrow1 = pg.image.load('D:\\nicoPrj\web_site\com\\nico\Games\Images\\arrow_default.png')
+arrow2 = pg.image.load('D:\\nicoPrj\web_site\com\\nico\Games\Images\\arrow_green.png')
+arrow3 = pg.image.load('D:\\nicoPrj\web_site\com\\nico\Games\Images\\arrow_orange.png')
+arrow4 = pg.image.load('D:\\nicoPrj\web_site\com\\nico\Games\Images\\arrow_red.png')
+
+picture_arrow1 = pg.transform.scale(arrow1, (100, 20))
+picture_arrow2 = pg.transform.scale(arrow2, (100, 20))
+picture_arrow3 = pg.transform.scale(arrow3, (100, 20))
+picture_arrow4 = pg.transform.scale(arrow4, (100, 20))
+
+
+myfont = pg.font.SysFont('maison Sans MS', 30)
+
 
 i = 20
 totalLines = []
@@ -44,20 +58,36 @@ def drawline(f_posx, f_posy, s_posx, s_posy, what_color):
     pg.draw.line(screen, what_color, [f_posx, f_posy], [s_posx, s_posy])
 
 
-def draw_button_line(point_1_x, point_1_y, mouse_pos):
-    drawline(point_1_x, point_1_y, mouse_pos[0], mouse_pos[1], SHADOW)
+def get_angle(first_point, last_point, screen_width=800, screen_height=800):
+    opposite_of_circle = (screen_height - first_point[1]) - (screen_height - last_point[1])
+    adjecent_of_circle = (screen_width - first_point[0]) - (screen_width - last_point[0])
 
+    if adjecent_of_circle <= 0:
+        adjecent_of_circle = -1 * adjecent_of_circle
+    if opposite_of_circle <= 0:
+        opposite_of_circle = -1 * opposite_of_circle
 
-def get_angle(first_point, last_point):
-    opposite_of_circle = first_point[1] - last_point[1]
-    adjecent_of_circle = last_point[0] - first_point[0]
-    hypothenus_of_circle = (adjecent_of_circle ^ 2) + (opposite_of_circle ^ 2)
-    get_cos_angle = -45
-    if opposite_of_circle != 0 and hypothenus_of_circle != 0:
-        get_cos = math.sin(opposite_of_circle/hypothenus_of_circle)
-        get_cos_angle = get_cos * 180 / 3.141592653589793238462643383279502884197169399375105820974944592307816406286
-    print(get_cos_angle)
-    print(opposite_of_circle, adjecent_of_circle, hypothenus_of_circle)
+    hypothenus_of_circle_squared = ((adjecent_of_circle**2) + (opposite_of_circle**2))
+
+    if hypothenus_of_circle_squared <= 0:
+        hypothenus_of_circle_squared *= -1
+
+    hypothenus_of_circle = round(math.sqrt(hypothenus_of_circle_squared))
+
+    print('Opposite is {}, \nAdjecent is {}\nHypothenus is {} and squared is {}'.format(opposite_of_circle,
+                                                                      adjecent_of_circle,
+                                                                      hypothenus_of_circle,
+                                                                      hypothenus_of_circle_squared))
+
+    angle = (opposite_of_circle / hypothenus_of_circle)
+    print(angle)
+
+    if angle <= 0:
+        angle = angle * -1
+        print(angle)
+    get_cos = math.asin(angle) * 180/math.pi
+    print(get_cos)
+    return round(get_cos - 180)
 
 
 def check_is_odd(number):
@@ -69,58 +99,78 @@ def check_is_odd(number):
 
 def get_all_points():
     for line in totalLines:
-        first_coordinatex = line[0[0]]
-        first_coordinatey = line[0[1]]
-        second_coodinatex = line[1[0]]
-        second_coodinatey = line[1[1]]
+        # first_coordinatex = line[0[0]]
+        # first_coordinatey = line[0[1]]
+        # second_coodinatex = line[1[0]]
+        # second_coodinatey = line[1[1]]
         get_ratio = 1
         print(get_ratio)
-        return first_coordinatex
+        return None
 
 
 def gravity_acting(y, trampoline_x, trampoline_y):
     if y < 0:
-        new_y = y - (y/10*9)
+        new_y = y - (y/10*9.8)  # I want to remove 0.98 but i can t because i can t remove .98 pixel for but only one
         return new_y
     else:
         if 350 < trampoline_x < 450 and y < trampoline_y-y+5 and y > trampoline_y+y+5:
             new_y = 1
             return new_y
         else:
-            new_y = y+1
+            new_y = y + 1  # I want to add 0.98 but i can t because i can t add .98 pixel
             return new_y
 
 
 def draw_button(x, y, radius, mousepos):
-    circle = CreateCircle(screen, radius+20, [x, y], BLUE, False)
+    circle = CreateCircle(screen, radius+20, [x, y], SHADOW, False)
     circle.drawcircle()
     circle2 = CreateCircle(screen, radius, [x, y], RED, False)
     circle2.drawcircle()
-    draw_button_line(x, y, mousepos)
+
+
+class Cube(pg.sprite.Sprite):
+    pass
 
 
 class Trampoline:
-    def __init__(self, game_screen, left_corner_up, right_corner_down, strenght, chosen_color, ):
+    def __init__(self, game_screen, left_corner_up, right_corner_down, strenght, chosen_color):
         self.screen = game_screen
         self.positionx = left_corner_up
         self.positiony = right_corner_down
         self.strenght = strenght
         self.color = chosen_color
 
-    def draw_trampoline(self):
+    def draw_trampoline_top(self):
         """
         This Function Uses the PyGame Module
-         to create A Trampoline.
+         to create A transparent Trampoline.
         """
         try:
-            tramp = pg.image.load('trampoline.png').convert_alpha()
-            self.screen.blit(tramp, [0, 1])
+            tramp = pg.image.load(
+                'D:\\nicoPrj\web_site\com\\nico\Games\Images\\trampoline_top-removebg-preview.png'
+                ).convert_alpha()
+            self.screen.blit(tramp, [self.positionx[0]+16, self.positionx[1]-20])
         except Exception as e:
             print(e)
-        drawline(self.positionx[0], self.positionx[1], self.positiony[0], self.positionx[1], BLUE)
-        drawline(self.positionx[0], self.positionx[1], self.positionx[0], self.positiony[1], BLUE)
-        drawline(self.positiony[0], self.positiony[1], self.positiony[0], self.positionx[1], BLUE)
+            drawline(self.positionx[0], self.positionx[1], self.positiony[0], self.positionx[1], BLUE)
+            drawline(self.positionx[0], self.positionx[1], self.positionx[0], self.positiony[1], BLUE)
+            drawline(self.positiony[0], self.positiony[1], self.positiony[0], self.positionx[1], BLUE)
 
+    def draw_trampoline_bottom(self):
+        """
+        This Function Uses the PyGame Module
+         to create the non-transparent to of a Trampoline .
+        """
+        try:
+            tramp = pg.image.load(
+                'D:\\nicoPrj\web_site\com\\nico\Games\Images\\trampoline_bottom-removebg-preview.png'
+                ).convert_alpha()
+            self.screen.blit(tramp, [self.positionx[0], self.positionx[1]])
+        except Exception as e:
+            print(e)
+            drawline(self.positionx[0], self.positionx[1], self.positiony[0], self.positionx[1], BLUE)
+            drawline(self.positionx[0], self.positionx[1], self.positionx[0], self.positiony[1], BLUE)
+            drawline(self.positiony[0], self.positiony[1], self.positiony[0], self.positionx[1], BLUE)
 
 
 class CreateCircle:
@@ -162,23 +212,46 @@ def main():
     is_need_for_update = True
     anti_gravity = False
     reset = False
+
+
+
+
+
+
+
+    teSTCOOORSDS_DEL_ME = [0, 120, 160, 200, 240, 300, 240, 260]
+
+
+
+
+
+
+
+
+
     circle_radius = 20
     circle_save_coordinates = [250, 250]
     button_coords = [700, 700]
 
+    all_arrows = [picture_arrow1, picture_arrow2, picture_arrow3, picture_arrow4]
+    current_arrow = picture_arrow1
+
+    a = 0
     add_x = 0
     add_y = 0
+
+    arrow_val_temp = 0
 
     pg.init()  # initializing the Simulation
     pg.display.set_caption("Bouncy Balls Simulation")
 
     while is_simulation_running:
-        print("The Simulation is running")
         screen.fill(SHADOW)
-        screen.blit(picture, [0, 0])
+        screen.blit(picture, [0 - 400, 0])
         # deletes all circles to replace with new affected by physics
 
         for event in pg.event.get():
+            keys = pg.key.get_pressed()
             if event.type == pg.MOUSEBUTTONDOWN:
                 new_coords_circle_x = current_mouse_position()[0]
                 new_coords_circle_y = current_mouse_position()[1]
@@ -189,7 +262,13 @@ def main():
                 reset = True
                 add_y = 0
                 add_x = 0
-                print(circle_save_coordinates)
+
+            if keys[K_SPACE]:
+                if arrow_val_temp == 2:
+                    arrow_val_temp = 0
+                time.sleep(1)
+                current_arrow = all_arrows[arrow_val_temp]
+                arrow_val_temp += 1
 
             if event.type == pg.QUIT:
                 pg.quit()
@@ -202,11 +281,19 @@ def main():
                               [circle_save_coordinates[0], circle_save_coordinates[1]],
                               RED, False)
 
-        trampoline.draw_trampoline()
-        draw_button(button_coords[0], button_coords[1], 20, current_mouse_position())
-        screen.blit(img, (button_coords[0], button_coords[1]))
-        get_angle(button_coords, current_mouse_position())
+        try:
+            trampoline.draw_trampoline_top()
+            draw_button(button_coords[0], button_coords[1], 20, current_mouse_position())
+            angle_of_arrow = get_angle(button_coords, current_mouse_position())
+            arrow_img_draw = pg.transform.rotate(current_arrow, teSTCOOORSDS_DEL_ME[a])
+            screen.blit(arrow_img_draw, [button_coords[0]-int(round(arrow_img_draw.get_width()/2)),
+                                         button_coords[1]-int(round(arrow_img_draw.get_height()/2))])
+        except Exception as e:
+            print(e)
 
+        a += 1
+        if a == len(teSTCOOORSDS_DEL_ME)-1:
+            a = 0
         if add_y == 0 and is_need_for_update:
             add_y = 2
 
@@ -224,34 +311,32 @@ def main():
                                                       circle_save_coordinates[1]))))
             circle_save_coordinates[0] += add_x
             circle_save_coordinates[1] += add_y
-            print(add_x, add_y)
             circle.drawcircle()
+        trampoline.draw_trampoline_bottom()
 
-        print("Updating Physics")
-        print(add_x, add_y)
-        if circle_save_coordinates[0] + circle_radius >= screenHeight:
+        if circle_save_coordinates[0] + circle_radius >= screenWidth:
             print("The Circle has Touched the {} line".format('right'))
             add_x = -2
             is_need_for_update = False
 
-        if circle_save_coordinates[0] - circle_radius <= screenHeight - screenHeight:
+        if circle_save_coordinates[0] - circle_radius <= screenWidth - screenWidth:
             print("The Circle has Touched the {} line".format('left'))
             add_x = 2
             is_need_for_update = False
 
-        if circle_save_coordinates[1] + circle_radius >= screenHeight:
+        if circle_save_coordinates[1] + circle_radius >= screenWidth:
             print("The Circle has Touched the {} line".format('bottom'))
             add_y = -2
             is_need_for_update = False
 
-        if circle_save_coordinates[1] - circle_radius <= screenHeight - screenHeight:
+        if circle_save_coordinates[1] - circle_radius <= screenWidth - screenWidth:
             print("The Circle has Touched the {} line".format('top'))
             add_y = 2
             is_need_for_update = False
 
         if 350 < circle_save_coordinates[0] < 450:
-            if circle_save_coordinates[1] >= 750:
-                if circle_save_coordinates[1] < 760:
+            if circle_save_coordinates[1] >= 750-circle_radius or circle_save_coordinates[1] >= 750 + circle_radius:
+                if circle_save_coordinates[1] < 774:
                     print("The Circle has Touched the trampoline line")
                     add_y = -2
                     is_need_for_update = False
@@ -261,12 +346,11 @@ def main():
             add_y = 2
 
         if is_circle_appeared:
-            print(add_x, add_y)
             circle_save_coordinates[0] += add_x
             circle_save_coordinates[1] += add_y
 
         pg.display.update()
-        clock.tick(144)
+        clock.tick(1)
 
 
 if __name__ == "__main__":
