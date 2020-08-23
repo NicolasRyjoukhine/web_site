@@ -99,8 +99,6 @@ def save(name, family, age, birthday, hobby_name_register, new_hobby_name, email
 
 def check_name(name_to_check, cur):
     name_list = cur.execute("SELECT name FROM register")
-    #name_familly_list = c.execute("SELECT familly_name FROM register")
-    #to_check_name = (name_list + " " + name_familly_list)
     for name in name_list:
         if name == name_to_check:
             cur.close()
@@ -109,52 +107,34 @@ def check_name(name_to_check, cur):
     return False
 
 
-def return_data():
-    conn = get_connection()
-    cur = conn.cursor()
-    return_data = cur.execute("SELECT name, familly_name, age, birthday, email FROM register")
-    result = []
-    global forhobbies
-    for ho in forhobbies:
-        if ho == cur.execute("SELECT name FROM register"):
-            cur.execute("INSERT INTO hobbies (name) VALUES (?)", (forhobbies,))
-    for row in return_data.fetchall():
-        reg = Registered()
-        reg.name = row[0]
-        reg.family = row[1]
-        result.append(reg)
-    cur.close()
-    conn.close()
-    print(result)
-    return result
-
 def return_name():
     conn = get_connection()
     cur = conn.cursor()
     return cur.execute("SELECT name FROM register")
+
 
 def return_family():
     conn = get_connection()
     cur = conn.cursor()
     return cur.execute("SELECT familly_name FROM register")
 
+
 def return_age():
     conn = get_connection()
     cur = conn.cursor()
     return cur.execute("SELECT age FROM register")
+
 
 def return_birthday():
     conn = get_connection()
     cur = conn.cursor()
     return cur.execute("SELECT birthday FROM register")
 
+
 def return_email():
     conn = get_connection()
     cur = conn.cursor()
     return cur.execute("SELECT email FROM register")
-
-class Registered ():
-    pass
 
 
 def return_hobby():

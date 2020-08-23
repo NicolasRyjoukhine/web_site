@@ -4,7 +4,6 @@ import datetime
 import random
 
 
-
 root = Tk()
 root.title('Register')
 root.geometry('400x600')
